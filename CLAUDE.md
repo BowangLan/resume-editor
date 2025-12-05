@@ -187,6 +187,46 @@ When extending the parser, update both:
 3. `/lib/types/resume.ts` - add TypeScript types
 4. Zustand store actions in `/hooks/use-resume.ts`
 
+## Adding New Resume Sections
+
+To add a new section (e.g., "Certifications"):
+
+1. **Add TypeScript type** in `/lib/types/resume.ts`:
+   ```typescript
+   export interface CertificationItem {
+     id: string;
+     name: string;
+     issuer: string;
+     date: string;
+   }
+
+   // Add to Resume interface
+   export interface Resume {
+     // ... existing fields
+     certifications: CertificationItem[];
+   }
+   ```
+
+2. **Update parser** in `/lib/parser/latex-parser.ts`:
+   - Add `parseCertifications()` method with regex patterns
+   - Add to `parse()` return object
+
+3. **Update generator** in `/lib/generator/latex-generator.ts`:
+   - Add `generateCertifications()` method
+   - Add to main `generate()` output
+
+4. **Update Zustand store** in `/hooks/use-resume.ts`:
+   - Add `updateCertifications` action
+   - Update `reset` to include certifications
+
+5. **Create section component** in `/components/resume/sections/certifications-section.tsx`:
+   - Use `React.memo` for performance
+   - Follow patterns from existing sections
+
+6. **Lazy load in editor** in `/components/resume/resume-editor.tsx`:
+   - Add `React.lazy` import
+   - Add to rendered sections with `Suspense`
+
 ## Development Notes
 
 - **React 19**: Uses new features like enhanced hooks. Ensure dependency compatibility when adding packages
