@@ -34,12 +34,11 @@ export interface ProjectItem {
   link?: string;
 }
 
-export interface Skills {
-  languages: string;
-  frameworks: string;
-  database: string;
-  developerTools: string;
-}
+/**
+ * Skills organized by category
+ * Example: { "Languages": ["JavaScript", "Python"], "Frontend": ["React", "Next.js"] }
+ */
+export type Skills = Record<string, string[]>;
 
 export interface Resume {
   header: ResumeHeader;

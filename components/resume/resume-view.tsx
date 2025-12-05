@@ -207,7 +207,7 @@ export const ResumeView = memo(function ResumeView() {
         )}
 
         {/* Skills Section */}
-        {resume.skills && (
+        {resume.skills && Object.keys(resume.skills).length > 0 && (
           <section className="space-y-3">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
@@ -216,46 +216,16 @@ export const ResumeView = memo(function ResumeView() {
               <Separator className="mt-1" />
             </div>
             <div className="space-y-2 text-sm">
-              {resume.skills.languages && (
-                <div className="flex gap-2">
+              {Object.entries(resume.skills).map(([category, skills]) => (
+                <div key={category} className="flex gap-2">
                   <span className="font-semibold text-gray-900 dark:text-gray-100 min-w-[140px]">
-                    Languages:
+                    {category}:
                   </span>
                   <span className="text-gray-700 dark:text-gray-300">
-                    {resume.skills.languages}
+                    {skills.join(', ')}
                   </span>
                 </div>
-              )}
-              {resume.skills.frameworks && (
-                <div className="flex gap-2">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 min-w-[140px]">
-                    Frameworks:
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {resume.skills.frameworks}
-                  </span>
-                </div>
-              )}
-              {resume.skills.database && (
-                <div className="flex gap-2">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 min-w-[140px]">
-                    Database:
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {resume.skills.database}
-                  </span>
-                </div>
-              )}
-              {resume.skills.developerTools && (
-                <div className="flex gap-2">
-                  <span className="font-semibold text-gray-900 dark:text-gray-100 min-w-[140px]">
-                    Developer Tools:
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {resume.skills.developerTools}
-                  </span>
-                </div>
-              )}
+              ))}
             </div>
           </section>
         )}

@@ -228,17 +228,19 @@ ${bullets}
   }
 
   private generateSkills(): string {
-    const { languages, frameworks, database, developerTools } = this.resume.skills;
+    const skillCategories = Object.entries(this.resume.skills)
+      .map(([category, skills]) => {
+        const skillsString = Array.isArray(skills) ? skills.join(', ') : skills;
+        return `    \\textbf{${this.escape(category)}}{: ${this.escape(skillsString)} } \\\\`;
+      })
+      .join('\n');
 
     return `
 %-----------PROGRAMMING SKILLS-----------
 \\section{Skills}
 \\begin{itemize}[leftmargin=0.15in, label={}]
     \\small{\\item{
-    \\textbf{Languages}{: ${this.escape(languages)} } \\\\
-    \\textbf{Frameworks}{: ${this.escape(frameworks)} } \\\\
-    \\textbf{Database}{: ${this.escape(database)} } \\\\
-    \\textbf{Developer Tools}{: ${this.escape(developerTools)} } \\\\
+${skillCategories}
     }}
 \\end{itemize}
 `;

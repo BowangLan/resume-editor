@@ -53,7 +53,7 @@ export const ExperienceSection = memo(function ExperienceSection() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Experience</CardTitle>
         <Button onClick={handleAdd} size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4" />
           Add Experience
         </Button>
       </CardHeader>

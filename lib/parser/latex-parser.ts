@@ -117,18 +117,28 @@ export class LatexParser {
 
   private parseSkills(): Skills {
     const skillsSection = this.extractSection('Skills');
+    const skills: Skills = {};
 
-    const languagesMatch = skillsSection?.match(/\\textbf\{Languages\}\{:\s*([^}]+)\}/);
-    const frameworksMatch = skillsSection?.match(/\\textbf\{Frameworks\}\{:\s*([^}]+)\}/);
-    const databaseMatch = skillsSection?.match(/\\textbf\{Database\}\{:\s*([^}]+)\}/);
-    const toolsMatch = skillsSection?.match(/\\textbf\{Developer Tools\}\{:\s*([^}]+)\}/);
+    if (!skillsSection) return skills;
 
-    return {
-      languages: languagesMatch?.[1]?.trim() || '',
-      frameworks: frameworksMatch?.[1]?.trim() || '',
-      database: databaseMatch?.[1]?.trim() || '',
-      developerTools: toolsMatch?.[1]?.trim() || '',
-    };
+    // Match all skill categories: \textbf{CategoryName}{: skills, go, here}
+    const skillRegex = /\\textbf\{([^}]+)\}\{:\s*([^}]+)\}/g;
+    let match;
+
+    while ((match = skillRegex.exec(skillsSection)) !== null) {
+      const category = match[1].trim();
+      const skillsString = match[2].trim();
+
+      // Split by comma and clean up each skill
+      const skillsArray = skillsString
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      skills[category] = skillsArray;
+    }
+
+    return skills;
   }
 
   private extractSection(sectionName: string): string | null {

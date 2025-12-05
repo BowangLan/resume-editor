@@ -52,7 +52,7 @@ export const EducationSection = memo(function EducationSection() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Education</CardTitle>
         <Button onClick={handleAdd} size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4" />
           Add Education
         </Button>
       </CardHeader>

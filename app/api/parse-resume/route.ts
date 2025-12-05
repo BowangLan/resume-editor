@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
+// @ts-ignore
 import pdf from 'pdf-parse-fork';
 
 const resumeSchema = z.object({
@@ -43,12 +44,9 @@ const resumeSchema = z.object({
       link: z.string().optional(),
     })
   ),
-  skills: z.object({
-    languages: z.string(),
-    frameworks: z.string(),
-    database: z.string(),
-    developerTools: z.string(),
-  }),
+  skills: z.record(z.string(), z.array(z.string())).describe(
+    "Skills organized by category. Example: { 'Languages': ['JavaScript', 'Python'], 'Frontend': ['React', 'Next.js'] }"
+  ),
 });
 
 export async function POST(request: NextRequest) {

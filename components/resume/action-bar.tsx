@@ -6,6 +6,7 @@ import { Download, FileText, FileDown } from 'lucide-react';
 import { useFileHandler } from '@/hooks/use-file-handler';
 import { useResumeStore } from '@/hooks/use-resume';
 import { FileUploader } from './file-uploader';
+import { ImproveResumeButton } from './improve-resume-button';
 import { toast } from 'sonner';
 
 export const ActionBar = memo(function ActionBar() {
@@ -58,12 +59,13 @@ export const ActionBar = memo(function ActionBar() {
           <FileUploader />
           {resume && (
             <>
-              <Button onClick={onDownload} size="lg" variant="outline">
-                <Download className="h-4 w-4 mr-2" />
+              <ImproveResumeButton />
+              <Button onClick={onDownload} size="sm" variant="outline">
+                <Download className="h-4 w-4" />
                 Download LaTeX
               </Button>
-              <Button onClick={onDownloadPDF} size="lg" disabled={isGeneratingPDF}>
-                <FileDown className="h-4 w-4 mr-2" />
+              <Button onClick={onDownloadPDF} size="sm" disabled={isGeneratingPDF}>
+                <FileDown className="h-4 w-4" />
                 {isGeneratingPDF ? 'Generating PDF...' : 'Download PDF'}
               </Button>
             </>
