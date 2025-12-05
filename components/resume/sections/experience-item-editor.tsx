@@ -55,7 +55,7 @@ export const ExperienceItemEditor = ({
             onClick={() => handleRemove(item.id)}
             size="sm"
             variant="ghost"
-            className="text-destructive group-hover:opacity-100 opacity-0 transition-opacity"
+            className="text-destructive group-hover:opacity-100 opacity-0 trans"
           >
             <Trash2 className="h-4 w-4" />
           </RichButton>

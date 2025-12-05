@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, cubicBezier, motion } from "motion/react";
 
 export const SectionItemContainer = ({
   children,
@@ -24,9 +24,9 @@ export const SectionItemContainer = ({
           setOpen(!open);
         }}
       >
-        <div className="flex-1 group-hover:translate-x-1 transition-transform">
+        <div className="flex-1 group-hover:translate-x-1 trans">
           <motion.h4
-            className="font-normal text-base group-hover:font-semibold transition-all"
+            className="font-normal text-base group-hover:font-semibold trans"
             style={{
               fontWeight: open ? 600 : undefined,
             }}
@@ -51,7 +51,10 @@ export const SectionItemContainer = ({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{
+              duration: 0.3,
+              ease: cubicBezier(0.215, 0.61, 0.355, 1.0),
+            }}
             className="border-t border-border"
           >
             {children}
