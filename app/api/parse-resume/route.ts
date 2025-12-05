@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Use AI to parse the resume into structured data
     const { object } = await generateObject({
-      model: openai('gpt-4o-mini-2024-07-18'),
+      model: openai("gpt-5-mini-2025-08-07"),
       schema: resumeSchema,
       prompt: `Parse the following resume text into a structured format. Extract all relevant information accurately.
 
