@@ -1,10 +1,10 @@
 "use client";
 
-import { memo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormField } from '../form-field';
-import { useResumeStore } from '@/hooks/use-resume';
-import type { ResumeHeader } from '@/lib/types/resume';
+import { memo, useCallback } from "react";
+import { FormField } from "../form-field";
+import { useResumeStore } from "@/hooks/use-resume";
+import type { ResumeHeader } from "@/lib/types/resume";
+import { SectionContainer } from "./section-container";
 
 export const HeaderSection = memo(function HeaderSection() {
   const { resume, updateHeader } = useResumeStore();
@@ -19,15 +19,12 @@ export const HeaderSection = memo(function HeaderSection() {
   if (!resume) return null;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Contact Information</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <SectionContainer title="Contact Information">
+      <div className="space-y-4">
         <FormField
           label="Full Name"
           value={resume.header.name}
-          onChange={(value) => handleChange('name', value)}
+          onChange={(value) => handleChange("name", value)}
           placeholder="John Doe"
           required
         />
@@ -35,13 +32,13 @@ export const HeaderSection = memo(function HeaderSection() {
           <FormField
             label="Phone"
             value={resume.header.phone}
-            onChange={(value) => handleChange('phone', value)}
+            onChange={(value) => handleChange("phone", value)}
             placeholder="(123) 456-7890"
           />
           <FormField
             label="Email"
             value={resume.header.email}
-            onChange={(value) => handleChange('email', value)}
+            onChange={(value) => handleChange("email", value)}
             placeholder="email@example.com"
             required
           />
@@ -50,23 +47,23 @@ export const HeaderSection = memo(function HeaderSection() {
           <FormField
             label="Website"
             value={resume.header.website}
-            onChange={(value) => handleChange('website', value)}
+            onChange={(value) => handleChange("website", value)}
             placeholder="yourwebsite.com"
           />
           <FormField
             label="LinkedIn Username"
             value={resume.header.linkedin}
-            onChange={(value) => handleChange('linkedin', value)}
+            onChange={(value) => handleChange("linkedin", value)}
             placeholder="your-profile"
           />
           <FormField
             label="GitHub Username"
             value={resume.header.github}
-            onChange={(value) => handleChange('github', value)}
+            onChange={(value) => handleChange("github", value)}
             placeholder="yourusername"
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </SectionContainer>
   );
 });

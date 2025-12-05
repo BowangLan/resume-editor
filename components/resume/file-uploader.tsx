@@ -1,11 +1,12 @@
 "use client";
 
-import { memo, useCallback, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Upload, Loader2 } from 'lucide-react';
-import { useFileHandler } from '@/hooks/use-file-handler';
-import { useResumeStore } from '@/hooks/use-resume';
-import { toast } from 'sonner';
+import { memo, useCallback, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Upload, Loader2 } from "lucide-react";
+import { useFileHandler } from "@/hooks/use-file-handler";
+import { useResumeStore } from "@/hooks/use-resume";
+import { toast } from "sonner";
+import { RichButton } from "../ui/rich-button";
 
 export const FileUploader = memo(function FileUploader() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -18,27 +19,29 @@ export const FileUploader = memo(function FileUploader() {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      if (!file.type.includes('pdf')) {
-        toast.error('Please upload a PDF file');
+      if (!file.type.includes("pdf")) {
+        toast.error("Please upload a PDF file");
         return;
       }
 
       try {
         setIsLoading(true);
-        toast.loading('Parsing resume with AI...');
+        toast.loading("Parsing resume with AI...");
         const resume = await handleUpload(file);
         setResume(resume);
         toast.dismiss();
-        toast.success('Resume parsed successfully!');
+        toast.success("Resume parsed successfully!");
       } catch (error) {
         toast.dismiss();
-        toast.error(error instanceof Error ? error.message : 'Failed to parse resume');
+        toast.error(
+          error instanceof Error ? error.message : "Failed to parse resume"
+        );
         console.error(error);
       } finally {
         setIsLoading(false);
         // Reset input
         if (inputRef.current) {
-          inputRef.current.value = '';
+          inputRef.current.value = "";
         }
       }
     },
@@ -55,15 +58,16 @@ export const FileUploader = memo(function FileUploader() {
         className="hidden"
         disabled={isLoading}
       />
-      <Button
+      <RichButton
         onClick={() => inputRef.current?.click()}
+        tooltip="Upload a new PDF resume"
         variant="outline"
-        size="lg"
+        size="sm"
         disabled={isLoading}
       >
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
             Parsing...
           </>
         ) : (
@@ -72,7 +76,7 @@ export const FileUploader = memo(function FileUploader() {
             Upload PDF Resume
           </>
         )}
-      </Button>
+      </RichButton>
     </>
   );
 });

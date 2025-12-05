@@ -1,34 +1,75 @@
 "use client";
 
-import { lazy, Suspense } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent } from '@/components/ui/card';
+import { lazy, Suspense, type ReactNode } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 // Lazy load section components for better code splitting
 const HeaderSection = lazy(() =>
-  import('./sections/header-section').then((mod) => ({ default: mod.HeaderSection }))
+  import("./sections/header-section").then((mod) => ({
+    default: mod.HeaderSection,
+  }))
 );
 const EducationSection = lazy(() =>
-  import('./sections/education-section').then((mod) => ({ default: mod.EducationSection }))
+  import("./sections/education-section").then((mod) => ({
+    default: mod.EducationSection,
+  }))
 );
 const ExperienceSection = lazy(() =>
-  import('./sections/experience-section').then((mod) => ({ default: mod.ExperienceSection }))
+  import("./sections/experience-section").then((mod) => ({
+    default: mod.ExperienceSection,
+  }))
 );
 const ProjectsSection = lazy(() =>
-  import('./sections/projects-section').then((mod) => ({ default: mod.ProjectsSection }))
+  import("./sections/projects-section").then((mod) => ({
+    default: mod.ProjectsSection,
+  }))
 );
 const SkillsSection = lazy(() =>
-  import('./sections/skills-section').then((mod) => ({ default: mod.SkillsSection }))
+  import("./sections/skills-section").then((mod) => ({
+    default: mod.SkillsSection,
+  }))
 );
+
+const SECTION_CONFIG = [
+  { key: "education", Component: EducationSection },
+  { key: "experience", Component: ExperienceSection },
+  { key: "projects", Component: ProjectsSection },
+  { key: "skills", Component: SkillsSection },
+] as const;
+
+type SectionEntry = (typeof SECTION_CONFIG)[number];
+
+function SectionChrome({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "[&_[data-slot=card]]:rounded-xl [&_[data-slot=card]]:border [&_[data-slot=card]]:border-border/70",
+        "[&_[data-slot=card]]:shadow-none [&_[data-slot=card]]:bg-card",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
 
 function SectionSkeleton() {
   return (
-    <Card>
-      <CardContent className="space-y-4 pt-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
+    <Card className="border border-border/70 bg-card shadow-none">
+      <CardContent className="space-y-3 pt-4">
+        <Skeleton className="h-3 w-32 rounded-full" />
+        <Skeleton className="h-4 w-44 rounded-full" />
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-10 w-2/3 rounded-md" />
       </CardContent>
     </Card>
   );
@@ -36,26 +77,22 @@ function SectionSkeleton() {
 
 export function ResumeEditor() {
   return (
-    <div className="space-y-6 pb-12">
-      <Suspense fallback={<SectionSkeleton />}>
-        <HeaderSection />
-      </Suspense>
+    <div className="space-y-8 pb-12 px-4">
+      <SectionChrome>
+        <Suspense fallback={<SectionSkeleton />}>
+          <HeaderSection />
+        </Suspense>
+      </SectionChrome>
 
-      <Suspense fallback={<SectionSkeleton />}>
-        <EducationSection />
-      </Suspense>
-
-      <Suspense fallback={<SectionSkeleton />}>
-        <ExperienceSection />
-      </Suspense>
-
-      <Suspense fallback={<SectionSkeleton />}>
-        <ProjectsSection />
-      </Suspense>
-
-      <Suspense fallback={<SectionSkeleton />}>
-        <SkillsSection />
-      </Suspense>
+      <div className="grid grid-cols-1 gap-4">
+        {SECTION_CONFIG.map(({ key, Component }: SectionEntry) => (
+          <SectionChrome key={key}>
+            <Suspense fallback={<SectionSkeleton />}>
+              <Component />
+            </Suspense>
+          </SectionChrome>
+        ))}
+      </div>
     </div>
   );
 }
