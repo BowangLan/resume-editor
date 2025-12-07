@@ -4,13 +4,12 @@ import { ActionBar } from "@/components/resume/action-bar";
 import { SplitView } from "@/components/resume/split-view";
 import { EmptyState } from "@/components/resume/empty-state";
 import { DropZoneOverlay } from "@/components/resume/drop-zone-overlay";
-import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { PageLayout, PageHeader, PageContent } from "@/components/layout";
 import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
 import { useFileHandler } from "@/hooks/use-file-handler";
 import { useDropZone } from "@/hooks/use-drop-zone";
 import { toast } from "sonner";
 import { useCallback } from "react";
-import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   const resume = useCurrentResume();
@@ -42,26 +41,21 @@ export default function Home() {
 
   return (
     <>
-      <SidebarInset className="h-screen flex flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-6" />
-          <div className="flex-1">
-            <ActionBar />
+      <PageLayout
+        header={{
+          actions: <ActionBar />,
+        }}
+      >
+        {resume ? (
+          <PageContent maxWidth="custom" customMaxWidth="max-w-[1800px]">
+            <SplitView />
+          </PageContent>
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <EmptyState />
           </div>
-        </header>
-        <main className="flex-1 overflow-hidden">
-          {resume ? (
-            <div className="container max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
-              <SplitView />
-            </div>
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <EmptyState />
-            </div>
-          )}
-        </main>
-      </SidebarInset>
+        )}
+      </PageLayout>
       <DropZoneOverlay isDragging={isDragging} />
     </>
   );

@@ -2,12 +2,11 @@
 
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { SplitView } from "@/components/resume/split-view";
 import { EmptyState } from "@/components/resume/empty-state";
 import { DropZoneOverlay } from "@/components/resume/drop-zone-overlay";
 import { ActionBar } from "@/components/resume/action-bar";
+import { PageLayout, PageHeader, PageContent } from "@/components/layout";
 import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
 import { useFileHandler } from "@/hooks/use-file-handler";
 import { useDropZone } from "@/hooks/use-drop-zone";
@@ -74,37 +73,24 @@ export default function ResumePage() {
 
   return (
     <>
-      <SidebarInset className="h-screen flex flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-6" />
-          <div className="flex items-center gap-2 flex-1">
-            <FileText className="h-5 w-5" />
-            <div className="flex flex-col">
-              <h1 className="text-sm font-semibold">{version.name}</h1>
-              {version.description && (
-                <p className="text-xs text-muted-foreground">
-                  {version.description}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="ml-auto">
-            <ActionBar />
-          </div>
-        </header>
-        <main className="flex-1 overflow-hidden">
+      <PageLayout
+        header={{
+          icon: FileText,
+          title: version.name,
+          description: version.description,
+          actions: <ActionBar />,
+        }}
+      >
+        <PageContent maxWidth="custom" customMaxWidth="max-w-[1800px]">
           {resume ? (
-            <div className="container max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
-              <SplitView />
-            </div>
+            <SplitView />
           ) : (
             <div className="h-full flex items-center justify-center">
               <EmptyState />
             </div>
           )}
-        </main>
-      </SidebarInset>
+        </PageContent>
+      </PageLayout>
       <DropZoneOverlay isDragging={isDragging} />
     </>
   );

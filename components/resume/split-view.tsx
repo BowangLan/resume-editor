@@ -16,7 +16,7 @@ export const SplitView = memo(function SplitView() {
       <div className="hidden lg:block h-full">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           <ResizablePanel defaultSize={50} minSize={30}>
-            <div className="h-full overflow-auto pr-4">
+            <div className="h-full overflow-auto pr-6">
               <ResumeEditor />
             </div>
           </ResizablePanel>
@@ -24,7 +24,7 @@ export const SplitView = memo(function SplitView() {
           <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize={50} minSize={30}>
-            <div className="h-full overflow-auto pl-4">
+            <div className="h-full overflow-auto pl-6">
               <ResumeView />
             </div>
           </ResizablePanel>
@@ -33,8 +33,12 @@ export const SplitView = memo(function SplitView() {
 
       {/* Mobile/Tablet: Tabbed View */}
       <div className="lg:hidden h-full">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'editor' | 'view')} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as "editor" | "view")}
+          className="h-full flex flex-col"
+        >
+          <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="editor" className="gap-2">
               <Eye className="h-4 w-4" />
               Editor

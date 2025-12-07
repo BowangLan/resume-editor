@@ -60,8 +60,8 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-3">
-          <Database className="h-5 w-5" />
+        <div className="flex items-center gap-3 px-3 py-4">
+          <Database className="h-5 w-5 shrink-0" />
           <span className="font-semibold">Resume Editor</span>
         </div>
       </SidebarHeader>
@@ -104,7 +104,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {versions.length === 0 ? (
-                <div className="px-2 py-4 text-sm text-muted-foreground">
+                <div className="px-3 py-6 text-sm text-muted-foreground text-center">
                   No resumes yet. Create one to get started.
                 </div>
               ) : (
