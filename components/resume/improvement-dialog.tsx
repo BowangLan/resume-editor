@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Check, X, Clock } from "lucide-react";
 import { ImprovementComparison } from "./improvement-comparison";
-import { useResumeStore } from "@/hooks/use-resume";
+import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
 import { ProgressEvent, ItemStatus } from "@/lib/types/streaming";
 import { ImprovedResume } from "@/lib/types/improvements";
 import { toast } from "sonner";
@@ -58,7 +58,8 @@ export function ImprovementDialog({
   progressEvents,
   isLoading,
 }: ImprovementDialogProps) {
-  const { resume, applyImprovements } = useResumeStore();
+  const resume = useCurrentResume();
+  const applyImprovements = useResumeStore((state) => state.applyImprovements);
 
   // Build improvements object from progress events
   const improvements: ImprovedResume | null = useMemo(() => {

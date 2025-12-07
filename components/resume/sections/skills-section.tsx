@@ -3,66 +3,116 @@
 import { memo, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
+import { Plus, Database } from "lucide-react";
 import { useResumeStore } from "@/hooks/use-resume";
-import type { Skills } from "@/lib/types/resume";
+import type { SkillCategory } from "@/lib/types/resume";
 import { SectionContainer } from "./section-container";
 import { SkillCategoryEditor } from "./skill-category-editor";
+import { ItemSelectorDialog } from "../item-selector-dialog";
 
 export const SkillsSection = memo(function SkillsSection() {
-  const { resume, updateSkills } = useResumeStore();
+  const skillCategories = useResumeStore((state) => {
+    const version = state.versions.find((v) => v.id === state.currentVersionId);
+    return version?.skillCategories ?? [];
+  });
+  const addMasterSkillCategory = useResumeStore(
+    (state) => state.addMasterSkillCategory
+  );
+  const updateCurrentVersionSkills = useResumeStore(
+    (state) => state.updateCurrentVersionSkills
+  );
   const [newCategory, setNewCategory] = useState("");
+  const [selectorOpen, setSelectorOpen] = useState(false);
 
   const handleAddCategory = useCallback(() => {
-    if (!resume || !newCategory.trim()) return;
+    const name = newCategory.trim();
+    if (!name) return;
 
-    const updatedSkills: Skills = {
-      ...resume.skills,
-      [newCategory.trim()]: [],
+    const masterId = crypto.randomUUID();
+    const masterCategory: SkillCategory = {
+      id: masterId,
+      name,
+      skills: [],
+      autoSync: true,
     };
-    updateSkills(updatedSkills);
+
+    addMasterSkillCategory(masterCategory);
+
+    const versionCategory: SkillCategory = {
+      ...masterCategory,
+      id: crypto.randomUUID(),
+      masterId,
+    };
+
+    updateCurrentVersionSkills([...skillCategories, versionCategory]);
     setNewCategory("");
-  }, [resume, newCategory, updateSkills]);
-
-  if (!resume) return null;
-
-  const categories = Object.keys(resume.skills);
+  }, [addMasterSkillCategory, newCategory, skillCategories, updateCurrentVersionSkills]);
 
   return (
-    <SectionContainer title="Skills">
-      {categories.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">
-          No skill categories. Add one below to get started.
-        </p>
-      ) : (
-        <div className="w-full space-y-2">
-          {categories.map((category) => (
-            <SkillCategoryEditor key={category} category={category} />
-          ))}
-        </div>
-      )}
-
-      {/* Add New Category */}
-      <div className="space-y-2 pt-4 border-t">
-        <h3 className="font-semibold text-sm">Add New Category</h3>
-        <div className="flex gap-2">
-          <Input
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddCategory();
-              }
-            }}
-            placeholder="e.g., Languages, Frameworks, Tools..."
-            className="text-sm"
-          />
-          <Button onClick={handleAddCategory} size="icon">
-            <Plus className="h-4 w-4" />
+    <>
+      <SectionContainer
+        title="Skills"
+        right={
+          <Button
+            onClick={() => setSelectorOpen(true)}
+            size="sm"
+            variant="outline"
+          >
+            <Database className="h-4 w-4" />
+            Add from Master
           </Button>
+        }
+      >
+        {skillCategories.length === 0 ? (
+          <div className="text-center py-8 space-y-3">
+            <p className="text-muted-foreground">
+              No skill categories in this version yet.
+            </p>
+            <Button
+              onClick={() => setSelectorOpen(true)}
+              variant="outline"
+              size="sm"
+            >
+              <Database className="h-4 w-4" />
+              Add from Master Data
+            </Button>
+          </div>
+        ) : (
+          <div className="w-full space-y-2">
+            {skillCategories.map((category) => (
+              <SkillCategoryEditor key={category.id} category={category} />
+            ))}
+          </div>
+        )}
+
+        {/* Add New Category */}
+        <div className="space-y-2 pt-4 border-t">
+          <h3 className="font-semibold text-sm">Add New Category</h3>
+          <div className="flex gap-2">
+            <Input
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddCategory();
+                }
+              }}
+              placeholder="e.g., Languages, Frameworks, Tools..."
+              className="text-sm"
+            />
+            <Button onClick={handleAddCategory} size="icon">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-    </SectionContainer>
+      </SectionContainer>
+
+      <ItemSelectorDialog
+        open={selectorOpen}
+        onOpenChange={setSelectorOpen}
+        type="skills"
+      />
+    </>
   );
 });

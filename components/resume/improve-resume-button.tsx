@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
-import { useResumeStore } from "@/hooks/use-resume";
+import { useCurrentResume } from "@/hooks/use-resume";
 import { ImprovementDialog } from "./improvement-dialog";
 import { ProgressEvent } from "@/lib/types/streaming";
 import { toast } from "sonner";
 
 export function ImproveResumeButton() {
-  const { resume } = useResumeStore();
+  const resume = useCurrentResume();
   const [isLoading, setIsLoading] = useState(false);
   const [progressEvents, setProgressEvents] = useState<ProgressEvent[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);

@@ -6,13 +6,13 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Copy, Check } from 'lucide-react';
-import { useResumeStore } from '@/hooks/use-resume';
+import { useCurrentResume } from '@/hooks/use-resume';
 import { generateLatex } from '@/lib/generator/latex-generator';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export const LatexPreview = memo(function LatexPreview() {
-  const { resume } = useResumeStore();
+  const resume = useCurrentResume();
   const [copied, setCopied] = useState(false);
 
   const latexCode = useMemo(() => {

@@ -1,12 +1,13 @@
-import { RichButton } from "@/components/ui/rich-button";
-import { useResumeStore } from "@/hooks/use-resume";
+import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
 import type { ProjectItem } from "@/lib/types/resume";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import { FormField } from "../form-field";
 import { BulletListEditor } from "../bullet-list-editor";
-import { Check, ChevronDown, Pencil, Trash2, X } from "lucide-react";
 import { SectionItemContainer } from "./section-item-container";
-import { cn } from "@/lib/utils";
+import { isProjectDifferentFromMaster } from "@/lib/utils/item-comparison";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { ItemEditorActions } from "./item-editor-actions";
 
 export const ProjectItemEditor = ({
   item,
@@ -15,9 +16,32 @@ export const ProjectItemEditor = ({
   item: ProjectItem;
   index: number;
 }) => {
-  const resume = useResumeStore((state) => state.resume);
+  const resume = useCurrentResume();
   const updateProjects = useResumeStore((state) => state.updateProjects);
+  const updateMasterProject = useResumeStore(
+    (state) => state.updateMasterProject
+  );
+  const syncItemFromMaster = useResumeStore(
+    (state) => state.syncItemFromMaster
+  );
+  const promoteToMaster = useResumeStore((state) => state.promoteToMaster);
+  const masterData = useResumeStore((state) => state.masterData);
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(item);
+
+  useEffect(() => {
+    setDraft(item);
+  }, [item]);
+
+  // Check if this item is different from master
+  const masterItem = useMemo(() => {
+    if (!item.masterId) return undefined;
+    return masterData.projects.find((m) => m.id === item.masterId);
+  }, [item.masterId, masterData.projects]);
+
+  const isDifferent = useMemo(() => {
+    return isProjectDifferentFromMaster(item, masterItem);
+  }, [item, masterItem]);
 
   const handleRemove = useCallback(
     (id: string) => {
@@ -27,17 +51,71 @@ export const ProjectItemEditor = ({
   );
 
   const handleChange = useCallback(
-    (id: string, field: keyof ProjectItem, value: unknown) => {
-      const items = resume?.projects || [];
-      const itemIndex = items.findIndex((item) => item.id === id);
-      if (itemIndex === -1) return;
-
-      const newItems = [...items];
-      newItems[itemIndex] = { ...newItems[itemIndex], [field]: value };
-      updateProjects(newItems);
+    (field: keyof ProjectItem, value: unknown) => {
+      setDraft((prev) => ({ ...prev, [field]: value } as ProjectItem));
     },
-    [resume?.projects, updateProjects]
+    []
   );
+
+  const handlePromoteToMaster = useCallback(() => {
+    promoteToMaster("projects", item.id);
+  }, [promoteToMaster, item.id]);
+
+  const handleRevertToMaster = useCallback(() => {
+    syncItemFromMaster("projects", item.id);
+  }, [syncItemFromMaster, item.id]);
+
+  const hasLocalChanges = useMemo(() => {
+    return JSON.stringify(draft) !== JSON.stringify(item);
+  }, [draft, item]);
+
+  const handleSave = useCallback(() => {
+    if (!resume) {
+      setOpen(false);
+      return;
+    }
+
+    if (!hasLocalChanges) {
+      setOpen(false);
+      return;
+    }
+
+    const items = resume.projects || [];
+    const itemIndex = items.findIndex((existing) => existing.id === item.id);
+    if (itemIndex === -1) {
+      setOpen(false);
+      return;
+    }
+
+    const newItems = [...items];
+    newItems[itemIndex] = draft;
+    updateProjects(newItems);
+
+    if (masterItem?.autoSync) {
+      updateMasterProject(masterItem.id, {
+        name: draft.name,
+        dates: draft.dates,
+        link: draft.link,
+        bullets: draft.bullets,
+      });
+    }
+
+    toast.success("Project updated");
+    setOpen(false);
+  }, [
+    resume,
+    hasLocalChanges,
+    item.id,
+    draft,
+    updateProjects,
+    masterItem,
+    updateMasterProject,
+  ]);
+
+  const handleDiscard = useCallback(() => {
+    setDraft(item);
+    setOpen(false);
+  }, [item]);
 
   const subtitle = [item.dates, item.link].filter(Boolean).join(" · ");
 
@@ -45,66 +123,59 @@ export const ProjectItemEditor = ({
     <SectionItemContainer
       open={open}
       setOpen={setOpen}
-      title={item.name}
+      title={
+        <div className="flex items-center gap-2">
+          <span>{item.name}</span>
+          {isDifferent && masterItem && (
+            <Badge variant="secondary" className="text-xs">
+              Modified
+            </Badge>
+          )}
+        </div>
+      }
       subtitle={subtitle}
       right={
-        <>
-          <RichButton
-            onClick={() => handleRemove(item.id)}
-            size="icon-sm"
-            variant="ghost"
-            className="text-destructive group-hover:opacity-100 opacity-0 trans"
-          >
-            <Trash2 className="h-4 w-4" />
-          </RichButton>
-          {open ? (
-            <RichButton
-              onClick={() => setOpen(false)}
-              size="sm"
-              variant="default"
-            >
-              <Check className="h-4 w-4" />
-              Done
-            </RichButton>
-          ) : (
-            <RichButton
-              onClick={() => setOpen(true)}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <Pencil className="h-4 w-4" />
-            </RichButton>
-          )}
-        </>
+        <ItemEditorActions
+          open={open}
+          setOpen={setOpen}
+          hasLocalChanges={hasLocalChanges}
+          onEdit={() => setOpen(true)}
+          onSave={handleSave}
+          onDiscard={handleDiscard}
+          onRemove={() => handleRemove(item.id)}
+          showMasterActions={Boolean(isDifferent && masterItem)}
+          onRevertToMaster={handleRevertToMaster}
+          onPromoteToMaster={handlePromoteToMaster}
+        />
       }
     >
       <div className="space-y-4 px-3 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             label="Project Name"
-            value={item.name}
-            onChange={(value) => handleChange(item.id, "name", value)}
+            value={draft.name}
+            onChange={(value) => handleChange("name", value)}
             placeholder="Awesome Project"
             required
           />
           <FormField
             label="Dates"
-            value={item.dates}
-            onChange={(value) => handleChange(item.id, "dates", value)}
+            value={draft.dates}
+            onChange={(value) => handleChange("dates", value)}
             placeholder="Jan 2023 -- Mar 2023"
           />
         </div>
 
         <FormField
           label="Link (optional)"
-          value={item.link || ""}
-          onChange={(value) => handleChange(item.id, "link", value)}
+          value={draft.link || ""}
+          onChange={(value) => handleChange("link", value)}
           placeholder="https://project.com"
         />
 
         <BulletListEditor
-          bullets={item.bullets}
-          onChange={(value) => handleChange(item.id, "bullets", value)}
+          bullets={draft.bullets}
+          onChange={(value) => handleChange("bullets", value)}
           label="Project Details"
         />
       </div>

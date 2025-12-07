@@ -1,14 +1,14 @@
 "use client";
 
 import { memo } from 'react';
-import { useResumeStore } from '@/hooks/use-resume';
+import { useCurrentResume } from '@/hooks/use-resume';
 import { Mail, Phone, Globe, Linkedin, Github, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import type { EducationItem, ExperienceItem, ProjectItem } from '@/lib/types/resume';
 
 export const ResumeView = memo(function ResumeView() {
-  const { resume } = useResumeStore();
+  const resume = useCurrentResume();
 
   if (!resume) {
     return null;

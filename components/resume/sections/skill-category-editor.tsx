@@ -1,69 +1,167 @@
 import { RichButton } from "@/components/ui/rich-button";
 import { useResumeStore } from "@/hooks/use-resume";
-import { useCallback, useState } from "react";
-import { Trash2, X, Plus, ChevronDown } from "lucide-react";
+import { useCallback, useState, useMemo } from "react";
+import { Trash2, X, Plus, ChevronDown, Upload, RotateCcw } from "lucide-react";
 import { SectionItemContainer } from "./section-item-container";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { isSkillCategoryDifferentFromMaster } from "@/lib/utils/item-comparison";
+import type { SkillCategory } from "@/lib/types/resume";
 
-export const SkillCategoryEditor = ({ category }: { category: string }) => {
-  const resume = useResumeStore((state) => state.resume);
-  const updateSkills = useResumeStore((state) => state.updateSkills);
+export const SkillCategoryEditor = ({ category }: { category: SkillCategory }) => {
+  const skillCategories = useResumeStore((state) => {
+    const version = state.versions.find((v) => v.id === state.currentVersionId);
+    return version?.skillCategories ?? [];
+  });
+  const updateCurrentVersionSkills = useResumeStore(
+    (state) => state.updateCurrentVersionSkills
+  );
+  const updateMasterSkillCategory = useResumeStore(
+    (state) => state.updateMasterSkillCategory
+  );
+  const syncItemFromMaster = useResumeStore((state) => state.syncItemFromMaster);
+  const promoteToMaster = useResumeStore((state) => state.promoteToMaster);
+  const masterData = useResumeStore((state) => state.masterData);
   const [open, setOpen] = useState(false);
   const [newSkill, setNewSkill] = useState("");
 
-  const handleRemoveCategory = useCallback(
-    (category: string) => {
-      if (!resume) return;
-      const { [category]: _, ...rest } = resume.skills;
-      updateSkills(rest);
-    },
-    [resume, updateSkills]
-  );
+  const categoryItem = useMemo(() => {
+    return skillCategories.find((cat) => cat.id === category.id) || null;
+  }, [skillCategories, category.id]);
+
+  // Check if this item is different from master
+  const masterItem = useMemo(() => {
+    if (!categoryItem?.masterId) return undefined;
+    return masterData.skillCategories.find((m) => m.id === categoryItem.masterId);
+  }, [categoryItem?.masterId, masterData.skillCategories]);
+
+  const isDifferent = useMemo(() => {
+    if (!categoryItem || !masterItem) return false;
+    return isSkillCategoryDifferentFromMaster(categoryItem, masterItem);
+  }, [categoryItem, masterItem]);
+
+  const handleRemoveCategory = useCallback(() => {
+    if (!categoryItem) return;
+    updateCurrentVersionSkills(
+      skillCategories.filter((cat) => cat.id !== categoryItem.id)
+    );
+  }, [categoryItem, skillCategories, updateCurrentVersionSkills]);
 
   const handleAddSkill = useCallback(() => {
-    if (!resume || !newSkill.trim()) return;
+    const skill = newSkill.trim();
+    if (!categoryItem || !skill) return;
 
-    const updatedSkills = {
-      ...resume.skills,
-      [category]: [...(resume.skills[category] || []), newSkill.trim()],
-    };
-    updateSkills(updatedSkills);
+    const updatedSkills = [...categoryItem.skills, skill];
+    const updatedCategories = skillCategories.map((cat) =>
+      cat.id === categoryItem.id
+        ? { ...cat, skills: updatedSkills }
+        : cat
+    );
+    updateCurrentVersionSkills(updatedCategories);
+
+    if (masterItem?.autoSync && categoryItem.masterId) {
+      updateMasterSkillCategory(categoryItem.masterId, {
+        skills: updatedSkills,
+      });
+    }
+
     setNewSkill("");
-  }, [resume, category, newSkill, updateSkills]);
+  }, [
+    categoryItem,
+    newSkill,
+    skillCategories,
+    updateCurrentVersionSkills,
+    masterItem,
+    updateMasterSkillCategory,
+  ]);
 
   const handleRemoveSkill = useCallback(
     (skillIndex: number) => {
-      if (!resume) return;
+      if (!categoryItem) return;
 
-      const updatedSkills = {
-        ...resume.skills,
-        [category]: resume.skills[category].filter(
-          (_, idx) => idx !== skillIndex
-        ),
-      };
-      updateSkills(updatedSkills);
+      const updatedSkills = categoryItem.skills.filter((_, idx) => idx !== skillIndex);
+      const updatedCategories = skillCategories.map((cat) =>
+        cat.id === categoryItem.id
+          ? {
+              ...cat,
+              skills: updatedSkills,
+            }
+          : cat
+      );
+      updateCurrentVersionSkills(updatedCategories);
+
+      if (masterItem?.autoSync && categoryItem.masterId) {
+        updateMasterSkillCategory(categoryItem.masterId, {
+          skills: updatedSkills,
+        });
+      }
     },
-    [resume, category, updateSkills]
+    [
+      categoryItem,
+      skillCategories,
+      updateCurrentVersionSkills,
+      masterItem,
+      updateMasterSkillCategory,
+    ]
   );
 
-  if (!resume) return null;
+  const handlePromoteToMaster = useCallback(() => {
+    if (!categoryItem) return;
+    promoteToMaster('skills', categoryItem.id);
+  }, [promoteToMaster, categoryItem]);
 
-  const skills = resume.skills[category] || [];
+  const handleRevertToMaster = useCallback(() => {
+    if (!categoryItem) return;
+    syncItemFromMaster('skills', categoryItem.id);
+  }, [syncItemFromMaster, categoryItem]);
+
+  if (!categoryItem) return null;
+
+  const skills = categoryItem.skills;
   const subtitle = `${skills.length} skill${skills.length !== 1 ? "s" : ""}`;
 
   return (
     <SectionItemContainer
       open={open}
       setOpen={setOpen}
-      title={category}
+      title={
+        <div className="flex items-center gap-2">
+          <span>{categoryItem.name}</span>
+          {isDifferent && masterItem && (
+            <Badge variant="secondary" className="text-xs">
+              Modified
+            </Badge>
+          )}
+        </div>
+      }
       subtitle={subtitle}
       right={
         <>
+          {isDifferent && masterItem && (
+            <>
+              <RichButton
+                onClick={handleRevertToMaster}
+                size="sm"
+                variant="ghost"
+                className="group-hover:opacity-100 opacity-0 trans"
+                title="Revert to master data"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </RichButton>
+              <RichButton
+                onClick={handlePromoteToMaster}
+                size="sm"
+                variant="ghost"
+                className="group-hover:opacity-100 opacity-0 trans"
+                title="Promote to master data"
+              >
+                <Upload className="h-4 w-4" />
+              </RichButton>
+            </>
+          )}
           <RichButton
-            onClick={() => handleRemoveCategory(category)}
+            onClick={handleRemoveCategory}
             size="icon-sm"
             variant="ghost"
             className="text-destructive"

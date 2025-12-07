@@ -26,9 +26,9 @@ export const SectionItemContainer = ({
       >
         <div className="flex-1 group-hover:translate-x-1 trans">
           <motion.h4
-            className="font-normal text-base group-hover:font-semibold trans"
+            className="font-normal text-sm group-hover:font-medium trans"
             style={{
-              fontWeight: open ? 600 : undefined,
+              // fontWeight: open ? "semibold" : undefined,
             }}
           >
             {!!title ? (
@@ -42,7 +42,7 @@ export const SectionItemContainer = ({
             <div className="text-xs text-muted-foreground">{subtitle}</div>
           )}
         </div>
-        <div className="flex items-center gap-2">{right}</div>
+        <div className="flex items-center gap-1">{right}</div>
       </motion.div>
 
       <AnimatePresence>

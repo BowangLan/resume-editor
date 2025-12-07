@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Copy, Check, FileCode } from "lucide-react";
-import { useResumeStore } from "@/hooks/use-resume";
+import { useCurrentResume } from "@/hooks/use-resume";
 import { generateLatex } from "@/lib/generator/latex-generator";
 import { toast } from "sonner";
 import { RichButton } from "../ui/rich-button";
@@ -25,7 +25,7 @@ interface LatexCodeDialogProps {
 export const LatexCodeDialog = memo(function LatexCodeDialog({
   children,
 }: LatexCodeDialogProps) {
-  const { resume } = useResumeStore();
+  const resume = useCurrentResume();
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
 

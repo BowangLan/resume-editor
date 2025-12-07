@@ -142,7 +142,11 @@ Use the "Add" buttons to create new entries. Each entry can be deleted (trash ic
 Uses Zustand for lightweight, performant state management:
 
 ```typescript
-const { resume, updateHeader, updateEducation } = useResumeStore();
+import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
+
+const resume = useCurrentResume();
+const updateHeader = useResumeStore((state) => state.updateHeader);
+const updateEducation = useResumeStore((state) => state.updateEducation);
 ```
 
 ### Parser Architecture

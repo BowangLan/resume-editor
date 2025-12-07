@@ -1,12 +1,13 @@
-import { RichButton } from "@/components/ui/rich-button";
-import { Check, ChevronDown, Pencil, Trash2, X } from "lucide-react";
 import { BulletListEditor } from "../bullet-list-editor";
-import { useResumeStore } from "@/hooks/use-resume";
-import { useCallback, useState } from "react";
+import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import type { ExperienceItem } from "@/lib/types/resume";
 import { FormField } from "../form-field";
 import { SectionItemContainer } from "./section-item-container";
-import { cn } from "@/lib/utils";
+import { isExperienceDifferentFromMaster } from "@/lib/utils/item-comparison";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { ItemEditorActions } from "./item-editor-actions";
 
 export const ExperienceItemEditor = ({
   item,
@@ -15,9 +16,32 @@ export const ExperienceItemEditor = ({
   item: ExperienceItem;
   index: number;
 }) => {
-  const resume = useResumeStore((state) => state.resume);
+  const resume = useCurrentResume();
   const updateExperience = useResumeStore((state) => state.updateExperience);
+  const updateMasterExperience = useResumeStore(
+    (state) => state.updateMasterExperience
+  );
+  const syncItemFromMaster = useResumeStore(
+    (state) => state.syncItemFromMaster
+  );
+  const promoteToMaster = useResumeStore((state) => state.promoteToMaster);
+  const masterData = useResumeStore((state) => state.masterData);
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(item);
+
+  useEffect(() => {
+    setDraft(item);
+  }, [item]);
+
+  // Check if this item is different from master
+  const masterItem = useMemo(() => {
+    if (!item.masterId) return undefined;
+    return masterData.experience.find((m) => m.id === item.masterId);
+  }, [item.masterId, masterData.experience]);
+
+  const isDifferent = useMemo(() => {
+    return isExperienceDifferentFromMaster(item, masterItem);
+  }, [item, masterItem]);
 
   const handleRemove = useCallback(
     (id: string) => {
@@ -29,17 +53,73 @@ export const ExperienceItemEditor = ({
   );
 
   const handleChange = useCallback(
-    (id: string, field: keyof ExperienceItem, value: unknown) => {
-      const items = resume?.experience || [];
-      const itemIndex = items.findIndex((item) => item.id === id);
-      if (itemIndex === -1) return;
-
-      const newItems = [...items];
-      newItems[itemIndex] = { ...newItems[itemIndex], [field]: value };
-      updateExperience(newItems);
+    (field: keyof ExperienceItem, value: unknown) => {
+      setDraft((prev) => ({ ...prev, [field]: value } as ExperienceItem));
     },
-    [resume?.experience, updateExperience]
+    []
   );
+
+  const handlePromoteToMaster = useCallback(() => {
+    promoteToMaster("experience", item.id);
+  }, [promoteToMaster, item.id]);
+
+  const handleRevertToMaster = useCallback(() => {
+    syncItemFromMaster("experience", item.id);
+  }, [syncItemFromMaster, item.id]);
+
+  const hasLocalChanges = useMemo(() => {
+    return JSON.stringify(draft) !== JSON.stringify(item);
+  }, [draft, item]);
+
+  const handleSave = useCallback(() => {
+    if (!resume) {
+      setOpen(false);
+      return;
+    }
+
+    if (!hasLocalChanges) {
+      setOpen(false);
+      return;
+    }
+
+    const items = resume.experience || [];
+    const itemIndex = items.findIndex((existing) => existing.id === item.id);
+    if (itemIndex === -1) {
+      setOpen(false);
+      return;
+    }
+
+    const newItems = [...items];
+    newItems[itemIndex] = draft;
+    updateExperience(newItems);
+
+    if (masterItem?.autoSync) {
+      updateMasterExperience(masterItem.id, {
+        title: draft.title,
+        company: draft.company,
+        location: draft.location,
+        dates: draft.dates,
+        bullets: draft.bullets,
+        link: draft.link,
+      });
+    }
+
+    toast.success("Experience updated");
+    setOpen(false);
+  }, [
+    resume,
+    hasLocalChanges,
+    item.id,
+    draft,
+    updateExperience,
+    masterItem,
+    updateMasterExperience,
+  ]);
+
+  const handleDiscard = useCallback(() => {
+    setDraft(item);
+    setOpen(false);
+  }, [item]);
 
   const subtitle = [item.company, item.dates].filter(Boolean).join(" · ");
 
@@ -47,52 +127,45 @@ export const ExperienceItemEditor = ({
     <SectionItemContainer
       open={open}
       setOpen={setOpen}
-      title={item.title}
+      title={
+        <div className="flex items-center gap-2">
+          <span>{item.title}</span>
+          {isDifferent && masterItem && (
+            <Badge variant="secondary" className="text-xs">
+              Modified
+            </Badge>
+          )}
+        </div>
+      }
       subtitle={subtitle}
       right={
-        <>
-          <RichButton
-            onClick={() => handleRemove(item.id)}
-            size="sm"
-            variant="ghost"
-            className="text-destructive group-hover:opacity-100 opacity-0 trans"
-          >
-            <Trash2 className="h-4 w-4" />
-          </RichButton>
-          {open ? (
-            <RichButton
-              onClick={() => setOpen(false)}
-              size="sm"
-              variant="default"
-            >
-              <Check className="h-4 w-4" />
-              Done
-            </RichButton>
-          ) : (
-            <RichButton
-              onClick={() => setOpen(true)}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <Pencil className="h-4 w-4" />
-            </RichButton>
-          )}
-        </>
+        <ItemEditorActions
+          open={open}
+          setOpen={setOpen}
+          hasLocalChanges={hasLocalChanges}
+          onEdit={() => setOpen(true)}
+          onSave={handleSave}
+          onDiscard={handleDiscard}
+          onRemove={() => handleRemove(item.id)}
+          showMasterActions={Boolean(isDifferent && masterItem)}
+          onRevertToMaster={handleRevertToMaster}
+          onPromoteToMaster={handlePromoteToMaster}
+        />
       }
     >
       <div className="space-y-4 px-3 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             label="Job Title"
-            value={item.title}
-            onChange={(value) => handleChange(item.id, "title", value)}
+            value={draft.title}
+            onChange={(value) => handleChange("title", value)}
             placeholder="Software Engineer"
             required
           />
           <FormField
             label="Dates"
-            value={item.dates}
-            onChange={(value) => handleChange(item.id, "dates", value)}
+            value={draft.dates}
+            onChange={(value) => handleChange("dates", value)}
             placeholder="Jan 2023 -- Present"
           />
         </div>
@@ -100,29 +173,29 @@ export const ExperienceItemEditor = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             label="Company"
-            value={item.company}
-            onChange={(value) => handleChange(item.id, "company", value)}
+            value={draft.company}
+            onChange={(value) => handleChange("company", value)}
             placeholder="Tech Corp"
             required
           />
           <FormField
             label="Location"
-            value={item.location}
-            onChange={(value) => handleChange(item.id, "location", value)}
+            value={draft.location}
+            onChange={(value) => handleChange("location", value)}
             placeholder="City, State"
           />
         </div>
 
         <FormField
           label="Link (optional)"
-          value={item.link || ""}
-          onChange={(value) => handleChange(item.id, "link", value)}
+          value={draft.link || ""}
+          onChange={(value) => handleChange("link", value)}
           placeholder="https://company.com"
         />
 
         <BulletListEditor
-          bullets={item.bullets}
-          onChange={(value) => handleChange(item.id, "bullets", value)}
+          bullets={draft.bullets}
+          onChange={(value) => handleChange("bullets", value)}
           label="Achievements & Responsibilities"
         />
       </div>

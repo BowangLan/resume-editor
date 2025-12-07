@@ -2,12 +2,13 @@
 
 import { memo, useCallback } from "react";
 import { FormField } from "../form-field";
-import { useResumeStore } from "@/hooks/use-resume";
+import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
 import type { ResumeHeader } from "@/lib/types/resume";
 import { SectionContainer } from "./section-container";
 
 export const HeaderSection = memo(function HeaderSection() {
-  const { resume, updateHeader } = useResumeStore();
+  const resume = useCurrentResume();
+  const updateHeader = useResumeStore((state) => state.updateHeader);
 
   const handleChange = useCallback(
     (field: keyof ResumeHeader, value: string) => {
