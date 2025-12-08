@@ -77,7 +77,7 @@ function SectionSkeleton() {
 
 export function ResumeEditor() {
   return (
-    <div className="space-y-8 pb-12 px-4">
+    <div className="space-y-8 pb-12">
       <SectionChrome>
         <Suspense fallback={<SectionSkeleton />}>
           <HeaderSection />

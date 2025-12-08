@@ -1,14 +1,18 @@
 "use client";
 
-import { memo, useState } from 'react';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ResumeEditor } from './resume-editor';
-import { ResumeView } from './resume-view';
-import { Eye, FileText } from 'lucide-react';
+import { memo, useState } from "react";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResumeEditor } from "./resume-editor";
+import { ResumeView } from "./resume-view";
+import { Eye, FileText } from "lucide-react";
 
 export const SplitView = memo(function SplitView() {
-  const [activeTab, setActiveTab] = useState<'editor' | 'view'>('editor');
+  const [activeTab, setActiveTab] = useState<"editor" | "view">("editor");
 
   return (
     <>
@@ -16,15 +20,15 @@ export const SplitView = memo(function SplitView() {
       <div className="hidden lg:block h-full">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           <ResizablePanel defaultSize={50} minSize={30}>
-            <div className="h-full overflow-auto pr-6">
+            <div className="h-full overflow-auto pr-3">
               <ResumeEditor />
             </div>
           </ResizablePanel>
 
-          <ResizableHandle withHandle />
+          <ResizableHandle className="opacity-0" />
 
           <ResizablePanel defaultSize={50} minSize={30}>
-            <div className="h-full overflow-auto pl-6">
+            <div className="h-full overflow-auto pl-3">
               <ResumeView />
             </div>
           </ResizablePanel>

@@ -79,7 +79,6 @@ export const EducationSection = memo(function EducationSection() {
                 size="sm"
               >
                 <Database className="h-4 w-4" />
-                Add from Master Data
               </Button>
               <Button onClick={handleAdd} variant="outline" size="sm">
                 <Plus className="h-4 w-4" />

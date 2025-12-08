@@ -38,7 +38,7 @@ export function PageContent({
     <div
       className={cn(
         "h-full w-full",
-        padding && "px-4 sm:px-6 lg:px-8 py-6 sm:py-8",
+        padding && "px-4 sm:px-6 lg:px-6 py-4 sm:py-8",
         maxWidthClass && maxWidth !== "full" && "mx-auto",
         className
       )}

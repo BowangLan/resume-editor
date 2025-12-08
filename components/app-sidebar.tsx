@@ -59,10 +59,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-3 py-4">
-          <Database className="h-5 w-5 shrink-0" />
-          <span className="font-semibold">Resume Editor</span>
+      <SidebarHeader className="border-b border-sidebar-border h-12">
+        <div className="flex items-center gap-2 my-auto px-2">
+          <Database className="h-4 w-4" />
+          <span className="text-sm font-medium">Resume Editor</span>
         </div>
       </SidebarHeader>
       <SidebarContent>

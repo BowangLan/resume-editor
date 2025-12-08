@@ -81,7 +81,7 @@ export default function ResumePage() {
           actions: <ActionBar />,
         }}
       >
-        <PageContent maxWidth="custom" customMaxWidth="max-w-[1800px]">
+        <PageContent maxWidth="custom">
           {resume ? (
             <SplitView />
           ) : (

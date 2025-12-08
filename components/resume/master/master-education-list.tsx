@@ -75,11 +75,7 @@ const MasterEducationItemEditor = ({
               Done
             </RichButton>
           ) : (
-            <RichButton
-              onClick={() => setOpen(true)}
-              size="sm"
-              variant="ghost"
-            >
+            <RichButton onClick={() => setOpen(true)} size="sm" variant="ghost">
               Edit
             </RichButton>
           )}
@@ -131,9 +127,15 @@ const MasterEducationItemEditor = ({
 
 export const MasterEducationList = memo(function MasterEducationList() {
   const masterEducation = useResumeStore((state) => state.masterData.education);
-  const addMasterEducation = useResumeStore((state) => state.addMasterEducation);
-  const updateMasterEducation = useResumeStore((state) => state.updateMasterEducation);
-  const deleteMasterEducation = useResumeStore((state) => state.deleteMasterEducation);
+  const addMasterEducation = useResumeStore(
+    (state) => state.addMasterEducation
+  );
+  const updateMasterEducation = useResumeStore(
+    (state) => state.updateMasterEducation
+  );
+  const deleteMasterEducation = useResumeStore(
+    (state) => state.deleteMasterEducation
+  );
   const versions = useResumeStore((state) => state.versions);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -157,12 +159,9 @@ export const MasterEducationList = memo(function MasterEducationList() {
     [updateMasterEducation]
   );
 
-  const handleRemove = useCallback(
-    (id: string) => {
-      setDeletingId(id);
-    },
-    []
-  );
+  const handleRemove = useCallback((id: string) => {
+    setDeletingId(id);
+  }, []);
 
   const handleDelete = () => {
     if (deletingId) {
@@ -231,15 +230,16 @@ export const MasterEducationList = memo(function MasterEducationList() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Education</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{deletingItem?.school}" from your master
-              data? This will not affect existing items in your resume versions.
+              Are you sure you want to delete "{deletingItem?.school}" from your
+              master data? This will not affect existing items in your resume
+              versions.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>

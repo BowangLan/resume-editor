@@ -9,6 +9,7 @@ import type { SkillCategory } from "@/lib/types/resume";
 import { SectionContainer } from "./section-container";
 import { SkillCategoryEditor } from "./skill-category-editor";
 import { ItemSelectorDialog } from "../item-selector-dialog";
+import { RichButton } from "@/components/ui/rich-button";
 
 export const SkillsSection = memo(function SkillsSection() {
   const skillCategories = useResumeStore((state) => {
@@ -46,21 +47,26 @@ export const SkillsSection = memo(function SkillsSection() {
 
     updateCurrentVersionSkills([...skillCategories, versionCategory]);
     setNewCategory("");
-  }, [addMasterSkillCategory, newCategory, skillCategories, updateCurrentVersionSkills]);
+  }, [
+    addMasterSkillCategory,
+    newCategory,
+    skillCategories,
+    updateCurrentVersionSkills,
+  ]);
 
   return (
     <>
       <SectionContainer
         title="Skills"
         right={
-          <Button
+          <RichButton
             onClick={() => setSelectorOpen(true)}
             size="sm"
             variant="outline"
+            tooltip="Add skills from master data"
           >
             <Database className="h-4 w-4" />
-            Add from Master
-          </Button>
+          </RichButton>
         }
       >
         {skillCategories.length === 0 ? (

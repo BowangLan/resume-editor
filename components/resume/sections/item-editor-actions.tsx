@@ -90,6 +90,8 @@ export function ItemEditorActions({
         size="icon-sm"
         variant="ghost"
         className="text-destructive group-hover:opacity-100 opacity-0 trans"
+        title="Remove item from resume"
+        tooltip="Remove item from resume"
       >
         <Trash2 className="h-4 w-4" />
       </RichButton>
@@ -133,6 +135,8 @@ export function ItemEditorActions({
           }}
           size="icon-sm"
           variant="ghost"
+          title="Edit item"
+          tooltip="Edit item"
         >
           <Pencil className="h-4 w-4" />
         </RichButton>
