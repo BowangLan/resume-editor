@@ -63,9 +63,18 @@ export function ImprovementDialog({
 
   // Build improvements object from progress events
   const improvements: ImprovedResume | null = useMemo(() => {
-    const experienceEvents = progressEvents.filter((e) => e.type === "experience" && e.status === "completed");
-    const projectEvents = progressEvents.filter((e) => e.type === "project" && e.status === "completed");
-    const skillsEvent = progressEvents.find((e) => e.type === "skills" && e.status === "completed");
+    const experienceEvents = progressEvents.filter(
+      (e): e is Extract<ProgressEvent, { type: "experience" }> =>
+        e.type === "experience" && e.status === "completed"
+    );
+    const projectEvents = progressEvents.filter(
+      (e): e is Extract<ProgressEvent, { type: "project" }> =>
+        e.type === "project" && e.status === "completed"
+    );
+    const skillsEvent = progressEvents.find(
+      (e): e is Extract<ProgressEvent, { type: "skills" }> =>
+        e.type === "skills" && e.status === "completed"
+    );
 
     if (experienceEvents.length === 0 && projectEvents.length === 0 && !skillsEvent) {
       return null;
@@ -73,14 +82,14 @@ export function ImprovementDialog({
 
     return {
       experience: experienceEvents.map((e) => ({
-        id: "id" in e ? e.id : "",
+        id: e.id,
         bullets: e.bullets || [],
       })),
       projects: projectEvents.map((e) => ({
-        id: "id" in e ? e.id : "",
+        id: e.id,
         bullets: e.bullets || [],
       })),
-      skills: skillsEvent && "improved" in skillsEvent && skillsEvent.improved
+      skills: skillsEvent && skillsEvent.improved
         ? {
             original: skillsEvent.original || {},
             improved: skillsEvent.improved,
@@ -124,9 +133,15 @@ export function ImprovementDialog({
 
   if (!resume) return null;
 
-  const experienceEvents = progressEvents.filter((e) => e.type === "experience");
-  const projectEvents = progressEvents.filter((e) => e.type === "project");
-  const skillsEvents = progressEvents.filter((e) => e.type === "skills");
+  const experienceEvents = progressEvents.filter(
+    (e): e is Extract<ProgressEvent, { type: "experience" }> => e.type === "experience"
+  );
+  const projectEvents = progressEvents.filter(
+    (e): e is Extract<ProgressEvent, { type: "project" }> => e.type === "project"
+  );
+  const skillsEvents = progressEvents.filter(
+    (e): e is Extract<ProgressEvent, { type: "skills" }> => e.type === "skills"
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

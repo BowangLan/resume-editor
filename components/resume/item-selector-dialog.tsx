@@ -21,6 +21,7 @@ import type {
   ExperienceItem,
   ProjectItem,
   SkillCategory,
+  ResumeVersion,
 } from "@/lib/types/resume";
 import { toast } from "sonner";
 
@@ -69,7 +70,11 @@ export const ItemSelectorDialog = memo(function ItemSelectorDialog({
   const addedMasterIds = useMemo(() => {
     if (!currentVersion) return new Set<string>();
 
-    const items = currentVersion[type] as Array<{ masterId?: string }>;
+    // Map "skills" type to "skillCategories" property
+    const propertyName = type === "skills" ? "skillCategories" : type;
+    const items = currentVersion[
+      propertyName as keyof ResumeVersion
+    ] as Array<{ masterId?: string }>;
     return new Set(items?.map((item) => item.masterId).filter(Boolean) ?? []);
   }, [currentVersion, type]);
 

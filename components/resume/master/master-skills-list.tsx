@@ -99,7 +99,6 @@ const MasterSkillCategoryEditor = ({
           bullets={item.skills}
           onChange={(value) => handleChange("skills", value)}
           label="Skills"
-          placeholder="Add a skill..."
         />
       </div>
     </SectionItemContainer>
