@@ -20,7 +20,7 @@ export const ActionBar = memo(function ActionBar() {
         <FileUploader />
         {resume && (
           <>
-            <ImproveResumeButton />
+            {/* <ImproveResumeButton /> */}
             {/* <Button onClick={onDownload} size="sm" variant="outline">
               <Download className="h-4 w-4" />
               Download LaTeX
