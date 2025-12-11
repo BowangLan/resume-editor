@@ -1,12 +1,12 @@
 "use client";
 
-import { memo, useState } from 'react';
-import { FileText, Upload, Plus } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { FileUploader } from './file-uploader';
-import { useResumeStore } from '@/hooks/use-resume';
+import { memo, useState } from "react";
+import { FileText, Upload, Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { FileUploader } from "./file-uploader";
+import { useResumeStore } from "@/hooks/use-resume";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
 export const EmptyState = memo(function EmptyState() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -55,22 +55,6 @@ export const EmptyState = memo(function EmptyState() {
 
             <div className="w-full space-y-4">
               <FileUploader />
-
-              <div className="flex items-center gap-4">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">OR</span>
-                <Separator className="flex-1" />
-              </div>
-
-              <Button
-                onClick={() => setCreateDialogOpen(true)}
-                variant="outline"
-                className="w-full"
-                size="lg"
-              >
-                <Plus className="h-4 w-4" />
-                Create New Version
-              </Button>
             </div>
 
             <div className="mt-8 pt-8 border-t w-full">
@@ -79,8 +63,8 @@ export const EmptyState = memo(function EmptyState() {
                 How It Works
               </h3>
               <p className="text-sm text-muted-foreground">
-                Upload a PDF resume for AI-powered parsing, or create a new version to manually
-                add items from your master data pool.
+                Upload a PDF resume for AI-powered parsing, or create a new
+                version to manually add items from your master data pool.
               </p>
             </div>
           </CardContent>
@@ -92,8 +76,9 @@ export const EmptyState = memo(function EmptyState() {
           <DialogHeader>
             <DialogTitle>Create New Resume Version</DialogTitle>
             <DialogDescription>
-              Create a new version to tailor your resume for different job applications.
-              You can add items from your master data to each version.
+              Create a new version to tailor your resume for different job
+              applications. You can add items from your master data to each
+              version.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -113,7 +98,9 @@ export const EmptyState = memo(function EmptyState() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="version-description">Description (optional)</Label>
+              <Label htmlFor="version-description">
+                Description (optional)
+              </Label>
               <Textarea
                 id="version-description"
                 placeholder="Brief description of this version..."
@@ -124,7 +111,10 @@ export const EmptyState = memo(function EmptyState() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setCreateDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleCreateVersion}>Create Version</Button>
