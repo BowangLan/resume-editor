@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, FileCode } from "lucide-react";
+import { Copy, Check, FileCode, Code } from "lucide-react";
 import { useCurrentResume } from "@/hooks/use-resume";
 import { generateLatex } from "@/lib/generator/latex-generator";
 import { toast } from "sonner";
@@ -56,20 +56,17 @@ export const LatexCodeDialog = memo(function LatexCodeDialog({
             variant="outline"
             tooltip="View LaTeX Code"
           >
-            <FileCode className="h-4 w-4" />
+            <Code className="h-4 w-4" />
           </RichButton>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl sm:max-w-7xl h-[80vh] sm:h-[90vh] flex flex-col">
+      <DialogContent className="max-w-4xl sm:max-w-4xl h-[80vh] sm:h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>LaTeX Code</span>
-            <Button
-              onClick={handleCopy}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
+          <div className="flex items-center justify-between">
+            <DialogTitle>
+              <span>LaTeX Code</span>
+            </DialogTitle>
+            <Button onClick={handleCopy} size="sm" className="gap-2">
               {copied ? (
                 <>
                   <Check className="h-4 w-4" />
@@ -82,7 +79,7 @@ export const LatexCodeDialog = memo(function LatexCodeDialog({
                 </>
               )}
             </Button>
-          </DialogTitle>
+          </div>
           <DialogDescription>
             Copy the generated LaTeX code below to use in your own LaTeX editor
           </DialogDescription>

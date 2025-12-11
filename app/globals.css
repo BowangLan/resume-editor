@@ -139,3 +139,15 @@
     @apply space-y-8;
   }
 }
+
+
+@font-face {
+  font-family: "Latin Modern Roman";
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource/latin-modern-roman/files/latin-modern-roman-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+.font-latin-modern-roman {
+  font-family: "Latin Modern Roman", serif;
+}

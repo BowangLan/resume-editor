@@ -14,22 +14,6 @@ import { toast } from "sonner";
 export const ActionBar = memo(function ActionBar() {
   const resume = useCurrentResume();
 
-  const onCopyLatex = useCallback(async () => {
-    if (!resume) {
-      toast.error("No resume to copy");
-      return;
-    }
-
-    try {
-      const latex = generateLatex(resume);
-      await navigator.clipboard.writeText(latex);
-      toast.success("LaTeX code copied to clipboard!");
-    } catch (error) {
-      toast.error("Failed to copy LaTeX code");
-      console.error(error);
-    }
-  }, [resume]);
-
   return (
     <TooltipProvider>
       <div className="flex items-center gap-3 ml-auto">
@@ -37,16 +21,6 @@ export const ActionBar = memo(function ActionBar() {
         {resume && (
           <>
             <ImproveResumeButton />
-            <RichButton
-              onClick={onCopyLatex}
-              tooltip="Copy the generated LaTeX code for this resume to clipboard"
-              size="sm"
-              variant="outline"
-            >
-              <Copy className="h-4 w-4" />
-              Copy LaTeX
-            </RichButton>
-            <LatexCodeDialog />
             {/* <Button onClick={onDownload} size="sm" variant="outline">
               <Download className="h-4 w-4" />
               Download LaTeX
