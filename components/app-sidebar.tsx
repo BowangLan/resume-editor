@@ -7,7 +7,6 @@ import {
   Briefcase,
   FolderKanban,
   Code,
-  FileText,
   Database,
 } from "lucide-react";
 import {
@@ -24,10 +23,10 @@ import {
 } from "@/components/ui/sidebar";
 import { useResumeStore } from "@/hooks/use-resume";
 import { Badge } from "@/components/ui/badge";
+import { ResumeSidebarGroup } from "@/components/sidebar/resume-sidebar-group";
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const versions = useResumeStore((state) => state.versions);
   const masterData = useResumeStore((state) => state.masterData);
 
   const masterDataItems = [
@@ -98,47 +97,7 @@ export function AppSidebar() {
 
         <SidebarSeparator />
 
-        {/* Resumes Group */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Resumes</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {versions.length === 0 ? (
-                <div className="px-3 py-6 text-sm text-muted-foreground text-center">
-                  No resumes yet. Create one to get started.
-                </div>
-              ) : (
-                versions.map((version) => {
-                  const isActive = pathname === `/resumes/${version.id}`;
-                  const itemCount =
-                    version.education.length +
-                    version.experience.length +
-                    version.projects.length +
-                    version.skillCategories.length;
-
-                  return (
-                    <SidebarMenuItem key={version.id}>
-                      <SidebarMenuButton asChild isActive={isActive}>
-                        <Link href={`/resumes/${version.id}`}>
-                          <FileText />
-                          <span className="truncate">{version.name}</span>
-                          {itemCount > 0 && (
-                            <Badge
-                              variant="secondary"
-                              className="ml-auto h-5 min-w-5 px-1"
-                            >
-                              {itemCount}
-                            </Badge>
-                          )}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <ResumeSidebarGroup />
       </SidebarContent>
     </Sidebar>
   );
