@@ -34,7 +34,6 @@ export const SkillsSection = memo(function SkillsSection() {
       id: masterId,
       name,
       skills: [],
-      autoSync: true,
     };
 
     addMasterSkillCategory(masterCategory);

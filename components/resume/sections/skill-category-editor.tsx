@@ -17,9 +17,6 @@ export const SkillCategoryEditor = ({ category }: { category: SkillCategory }) =
   const updateCurrentVersionSkills = useResumeStore(
     (state) => state.updateCurrentVersionSkills
   );
-  const updateMasterSkillCategory = useResumeStore(
-    (state) => state.updateMasterSkillCategory
-  );
   const syncItemFromMaster = useResumeStore((state) => state.syncItemFromMaster);
   const promoteToMaster = useResumeStore((state) => state.promoteToMaster);
   const masterData = useResumeStore((state) => state.masterData);
@@ -60,20 +57,12 @@ export const SkillCategoryEditor = ({ category }: { category: SkillCategory }) =
     );
     updateCurrentVersionSkills(updatedCategories);
 
-    if (masterItem?.autoSync && categoryItem.masterId) {
-      updateMasterSkillCategory(categoryItem.masterId, {
-        skills: updatedSkills,
-      });
-    }
-
     setNewSkill("");
   }, [
     categoryItem,
     newSkill,
     skillCategories,
     updateCurrentVersionSkills,
-    masterItem,
-    updateMasterSkillCategory,
   ]);
 
   const handleRemoveSkill = useCallback(
@@ -90,19 +79,11 @@ export const SkillCategoryEditor = ({ category }: { category: SkillCategory }) =
           : cat
       );
       updateCurrentVersionSkills(updatedCategories);
-
-      if (masterItem?.autoSync && categoryItem.masterId) {
-        updateMasterSkillCategory(categoryItem.masterId, {
-          skills: updatedSkills,
-        });
-      }
     },
     [
       categoryItem,
       skillCategories,
       updateCurrentVersionSkills,
-      masterItem,
-      updateMasterSkillCategory,
     ]
   );
 

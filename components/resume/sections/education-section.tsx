@@ -27,7 +27,6 @@ export const EducationSection = memo(function EducationSection() {
       degree: "",
       dates: "",
       coursework: [],
-      autoSync: true,
     };
 
     addMasterEducation(masterItem);

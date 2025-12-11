@@ -15,7 +15,6 @@ export interface EducationItem {
   dates: string;
   coursework: string[];
   masterId?: string;  // Reference to master data item
-  autoSync?: boolean; // When true, version edits should keep the master copy in sync
 }
 
 export interface ExperienceItem {
@@ -27,7 +26,6 @@ export interface ExperienceItem {
   bullets: string[];
   link?: string;
   masterId?: string;  // Reference to master data item
-  autoSync?: boolean;
 }
 
 export interface ProjectItem {
@@ -37,7 +35,6 @@ export interface ProjectItem {
   bullets: string[];
   link?: string;
   masterId?: string;  // Reference to master data item
-  autoSync?: boolean;
 }
 
 /**
@@ -54,7 +51,6 @@ export interface SkillCategory {
   name: string;  // e.g., "Languages", "Frontend"
   skills: string[];
   masterId?: string;  // Reference to master data item
-  autoSync?: boolean;
 }
 
 /**

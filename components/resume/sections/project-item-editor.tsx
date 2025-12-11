@@ -18,9 +18,6 @@ export const ProjectItemEditor = ({
 }) => {
   const resume = useCurrentResume();
   const updateProjects = useResumeStore((state) => state.updateProjects);
-  const updateMasterProject = useResumeStore(
-    (state) => state.updateMasterProject
-  );
   const syncItemFromMaster = useResumeStore(
     (state) => state.syncItemFromMaster
   );
@@ -91,15 +88,6 @@ export const ProjectItemEditor = ({
     newItems[itemIndex] = draft;
     updateProjects(newItems);
 
-    if (masterItem?.autoSync) {
-      updateMasterProject(masterItem.id, {
-        name: draft.name,
-        dates: draft.dates,
-        link: draft.link,
-        bullets: draft.bullets,
-      });
-    }
-
     toast.success("Project updated");
     setOpen(false);
   }, [
@@ -109,7 +97,6 @@ export const ProjectItemEditor = ({
     draft,
     updateProjects,
     masterItem,
-    updateMasterProject,
   ]);
 
   const handleDiscard = useCallback(() => {

@@ -18,9 +18,6 @@ export const EducationItemEditor = ({
 }) => {
   const resume = useCurrentResume();
   const updateEducation = useResumeStore((state) => state.updateEducation);
-  const updateMasterEducation = useResumeStore(
-    (state) => state.updateMasterEducation
-  );
   const syncItemFromMaster = useResumeStore(
     (state) => state.syncItemFromMaster
   );
@@ -93,16 +90,6 @@ export const EducationItemEditor = ({
     newItems[itemIndex] = draft;
     updateEducation(newItems);
 
-    if (masterItem?.autoSync) {
-      updateMasterEducation(masterItem.id, {
-        school: draft.school,
-        location: draft.location,
-        degree: draft.degree,
-        dates: draft.dates,
-        coursework: draft.coursework,
-      });
-    }
-
     toast.success("Education updated");
     setOpen(false);
   }, [
@@ -112,7 +99,6 @@ export const EducationItemEditor = ({
     draft,
     updateEducation,
     masterItem,
-    updateMasterEducation,
   ]);
 
   const handleDiscard = useCallback(() => {

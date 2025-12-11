@@ -749,55 +749,65 @@ export const useResumeStore = create<ResumeStore>()(
         }),
 
       promoteToMaster: (type, itemId) =>
-        set((state) => {
-          if (!state.currentVersionId) return state;
+        (() => {
+          const state = get();
+          if (!state.currentVersionId) return;
 
           const version = state.versions.find((v) => v.id === state.currentVersionId);
-          if (!version) return state;
+          if (!version) return;
 
-          // Find the version item and its masterId
-          let versionItem;
-          let masterId;
-
-          if (type === 'education') {
-            versionItem = version.education.find((item) => item.id === itemId);
-            masterId = versionItem?.masterId;
-          } else if (type === 'experience') {
-            versionItem = version.experience.find((item) => item.id === itemId);
-            masterId = versionItem?.masterId;
-          } else if (type === 'projects') {
-            versionItem = version.projects.find((item) => item.id === itemId);
-            masterId = versionItem?.masterId;
-          } else if (type === 'skills') {
-            versionItem = version.skillCategories.find((item) => item.id === itemId);
-            masterId = versionItem?.masterId;
+          if (type === "education") {
+            const versionItem = version.education.find((item) => item.id === itemId);
+            const masterId = versionItem?.masterId;
+            if (!versionItem || !masterId) return;
+            get().updateMasterEducation(masterId, {
+              school: versionItem.school,
+              location: versionItem.location,
+              degree: versionItem.degree,
+              dates: versionItem.dates,
+              coursework: versionItem.coursework,
+            });
+            return;
           }
 
-          if (!versionItem || !masterId) return state;
-
-          // Update the master item with version item's data
-          const newMasterData = { ...state.masterData };
-
-          if (type === 'education') {
-            newMasterData.education = newMasterData.education.map((item) =>
-              item.id === masterId ? { ...versionItem, id: masterId, masterId: undefined } as EducationItem : item
-            );
-          } else if (type === 'experience') {
-            newMasterData.experience = newMasterData.experience.map((item) =>
-              item.id === masterId ? { ...versionItem, id: masterId, masterId: undefined } as ExperienceItem : item
-            );
-          } else if (type === 'projects') {
-            newMasterData.projects = newMasterData.projects.map((item) =>
-              item.id === masterId ? { ...versionItem, id: masterId, masterId: undefined } as ProjectItem : item
-            );
-          } else if (type === 'skills') {
-            newMasterData.skillCategories = newMasterData.skillCategories.map((item) =>
-              item.id === masterId ? { ...versionItem, id: masterId, masterId: undefined } as SkillCategory : item
-            );
+          if (type === "experience") {
+            const versionItem = version.experience.find((item) => item.id === itemId);
+            const masterId = versionItem?.masterId;
+            if (!versionItem || !masterId) return;
+            get().updateMasterExperience(masterId, {
+              title: versionItem.title,
+              company: versionItem.company,
+              location: versionItem.location,
+              dates: versionItem.dates,
+              bullets: versionItem.bullets,
+              link: versionItem.link,
+            });
+            return;
           }
 
-          return { masterData: newMasterData };
-        }),
+          if (type === "projects") {
+            const versionItem = version.projects.find((item) => item.id === itemId);
+            const masterId = versionItem?.masterId;
+            if (!versionItem || !masterId) return;
+            get().updateMasterProject(masterId, {
+              name: versionItem.name,
+              dates: versionItem.dates,
+              link: versionItem.link,
+              bullets: versionItem.bullets,
+            });
+            return;
+          }
+
+          if (type === "skills") {
+            const versionItem = version.skillCategories.find((item) => item.id === itemId);
+            const masterId = versionItem?.masterId;
+            if (!versionItem || !masterId) return;
+            get().updateMasterSkillCategory(masterId, {
+              name: versionItem.name,
+              skills: versionItem.skills,
+            });
+          }
+        })(),
 
       // Backward compatibility actions
       setResume: (resume) => {

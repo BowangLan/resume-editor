@@ -1,14 +1,10 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, GripVertical, Database } from "lucide-react";
-import { FormField } from "../form-field";
-import { BulletListEditor } from "../bullet-list-editor";
+import { Plus, Database } from "lucide-react";
 import { useResumeStore, useCurrentResume } from "@/hooks/use-resume";
 import type { ExperienceItem } from "@/lib/types/resume";
-import { Separator } from "@/components/ui/separator";
 import { SectionContainer } from "./section-container";
 import { ExperienceItemEditor } from "./experience-item-editor";
 import { RichButton } from "@/components/ui/rich-button";
@@ -32,7 +28,6 @@ export const ExperienceSection = memo(function ExperienceSection() {
       dates: "",
       bullets: [""],
       link: "",
-      autoSync: true,
     };
 
     addMasterExperience(masterItem);
@@ -44,28 +39,6 @@ export const ExperienceSection = memo(function ExperienceSection() {
     };
     updateExperience([...(resume?.experience || []), versionItem]);
   }, [addMasterExperience, resume?.experience, updateExperience]);
-
-  const handleRemove = useCallback(
-    (id: string) => {
-      updateExperience(
-        (resume?.experience || []).filter((item) => item.id !== id)
-      );
-    },
-    [resume?.experience, updateExperience]
-  );
-
-  const handleChange = useCallback(
-    (id: string, field: keyof ExperienceItem, value: unknown) => {
-      const items = resume?.experience || [];
-      const index = items.findIndex((item) => item.id === id);
-      if (index === -1) return;
-
-      const newItems = [...items];
-      newItems[index] = { ...newItems[index], [field]: value };
-      updateExperience(newItems);
-    },
-    [resume?.experience, updateExperience]
-  );
 
   if (!resume) return null;
 

@@ -24,7 +24,6 @@ export const ProjectsSection = memo(function ProjectsSection() {
       dates: "",
       bullets: [""],
       link: "",
-      autoSync: true,
     };
 
     addMasterProject(masterItem);

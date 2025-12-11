@@ -18,9 +18,6 @@ export const ExperienceItemEditor = ({
 }) => {
   const resume = useCurrentResume();
   const updateExperience = useResumeStore((state) => state.updateExperience);
-  const updateMasterExperience = useResumeStore(
-    (state) => state.updateMasterExperience
-  );
   const syncItemFromMaster = useResumeStore(
     (state) => state.syncItemFromMaster
   );
@@ -93,17 +90,6 @@ export const ExperienceItemEditor = ({
     newItems[itemIndex] = draft;
     updateExperience(newItems);
 
-    if (masterItem?.autoSync) {
-      updateMasterExperience(masterItem.id, {
-        title: draft.title,
-        company: draft.company,
-        location: draft.location,
-        dates: draft.dates,
-        bullets: draft.bullets,
-        link: draft.link,
-      });
-    }
-
     toast.success("Experience updated");
     setOpen(false);
   }, [
@@ -113,7 +99,6 @@ export const ExperienceItemEditor = ({
     draft,
     updateExperience,
     masterItem,
-    updateMasterExperience,
   ]);
 
   const handleDiscard = useCallback(() => {
