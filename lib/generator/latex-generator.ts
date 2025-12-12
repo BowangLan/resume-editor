@@ -146,7 +146,7 @@ ${items}
   private generateEducationItem(item: EducationItem): string {
     const courseworkSection = item.coursework.length > 0
       ? `    \\resumeItemListStart
-        \\resumeItem{Relevant course work: ${item.coursework.map(c => this.escape(c)).join(', ')}}
+        \\resumeItem{Relevant course work: ${item.coursework.map(c => this.formatInlineBold(c)).join(', ')}}
     \\resumeItemListEnd`
       : '';
 
@@ -179,7 +179,7 @@ ${items}
 
     const bullets = item.bullets
       .filter(b => b.trim().length > 0)
-      .map(bullet => `        \\resumeItem{${this.escape(bullet)}}`)
+      .map(bullet => `        \\resumeItem{${this.formatInlineBold(bullet)}}`)
       .join('\n');
 
     if (!bullets) return '';
@@ -215,7 +215,7 @@ ${items}
 
     const bullets = item.bullets
       .filter(b => b.trim().length > 0)
-      .map(bullet => `        \\resumeItem{${this.escape(bullet)}}`)
+      .map(bullet => `        \\resumeItem{${this.formatInlineBold(bullet)}}`)
       .join('\n');
 
     if (!bullets) return '';
@@ -231,7 +231,7 @@ ${bullets}
     const skillCategories = Object.entries(this.resume.skills)
       .map(([category, skills]) => {
         const skillsString = Array.isArray(skills) ? skills.join(', ') : skills;
-        return `    \\textbf{${this.escape(category)}}{: ${this.escape(skillsString)} } \\\\`;
+        return `    \\textbf{${this.escape(category)}}{: ${this.formatInlineBold(skillsString)} } \\\\`;
       })
       .join('\n');
 
@@ -265,6 +265,56 @@ ${skillCategories}
       .replace(/\\textbackslash\{\}textbf/g, '\\textbf')
       .replace(/\\textbackslash\{\}textit/g, '\\textit')
       .replace(/\\textbackslash\{\}href/g, '\\href');
+  }
+
+  /**
+   * Supports markdown-style inline bold (**text** or __text__) and converts to LaTeX \\textbf{text}.
+   * All other content is escaped for LaTeX safety.
+   */
+  private formatInlineBold(text: string): string {
+    if (!text) return '';
+
+    const out: string[] = [];
+    let i = 0;
+
+    const escapeSegment = (s: string) => this.escape(s);
+
+    while (i < text.length) {
+      const nextDoubleStar = text.indexOf('**', i);
+      const nextDoubleUnderscore = text.indexOf('__', i);
+
+      const next =
+        nextDoubleStar === -1
+          ? nextDoubleUnderscore
+          : nextDoubleUnderscore === -1
+            ? nextDoubleStar
+            : Math.min(nextDoubleStar, nextDoubleUnderscore);
+
+      if (next === -1) {
+        out.push(escapeSegment(text.slice(i)));
+        break;
+      }
+
+      // Emit preceding plain text
+      out.push(escapeSegment(text.slice(i, next)));
+
+      const marker = text.startsWith('**', next) ? '**' : '__';
+      const start = next + marker.length;
+      const end = text.indexOf(marker, start);
+
+      // No closing marker -> treat the marker literally
+      if (end === -1) {
+        out.push(escapeSegment(marker));
+        i = start;
+        continue;
+      }
+
+      const boldContent = text.slice(start, end);
+      out.push(`\\textbf{${escapeSegment(boldContent)}}`);
+      i = end + marker.length;
+    }
+
+    return out.join('');
   }
 }
 

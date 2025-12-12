@@ -70,13 +70,15 @@ export class LatexParser {
     while ((match = subheadingRegex.exec(experienceSection)) !== null) {
       const titlePart = match[1];
       const linkMatch = titlePart.match(/\\href\{([^}]+)\}\{\\faLink\}/);
-      const title = titlePart.replace(/\\href\{[^}]+\}\{\\faLink\}/, '').trim();
+      const title = this.latexInlineToMarkdownBold(
+        titlePart.replace(/\\href\{[^}]+\}\{\\faLink\}/, '').trim(),
+      );
 
       const bullets = this.extractBullets(match[5]);
 
       items.push({
         id: crypto.randomUUID(),
-        title: match[1].trim(),
+        title,
         dates: match[2].trim(),
         company: match[3].trim(),
         location: match[4].trim(),
@@ -99,7 +101,9 @@ export class LatexParser {
     while ((match = projectRegex.exec(projectSection)) !== null) {
       const namePart = match[1];
       const linkMatch = namePart.match(/\\href\{([^}]+)\}\{\\faLink\}/);
-      const name = namePart.replace(/\\href\{[^}]+\}\{\\faLink\}/, '').trim();
+      const name = this.latexInlineToMarkdownBold(
+        namePart.replace(/\\href\{[^}]+\}\{\\faLink\}/, '').trim(),
+      );
 
       const bullets = this.extractBullets(match[3]);
 
@@ -153,10 +157,19 @@ export class LatexParser {
 
     let match;
     while ((match = bulletRegex.exec(content)) !== null) {
-      bullets.push(match[1].trim());
+      bullets.push(this.latexInlineToMarkdownBold(match[1].trim()));
     }
 
     return bullets;
+  }
+
+  private latexInlineToMarkdownBold(text: string): string {
+    if (!text) return '';
+
+    // Convert inline LaTeX bold to markdown bold for editing in the UI.
+    // Handles nested braces within the \\textbf{...} argument.
+    const textbfRegex = /\\textbf\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/g;
+    return text.replace(textbfRegex, (_, inner: string) => `**${inner}**`);
   }
 }
 
