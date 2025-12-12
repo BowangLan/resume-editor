@@ -3,10 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FileText, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { FileText, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -27,6 +28,17 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useResumeStore } from "@/hooks/use-resume";
 import { toast } from "sonner";
 
@@ -36,8 +48,13 @@ export function ResumeSidebarGroup() {
 
   const versions = useResumeStore((state) => state.versions);
   const currentVersionId = useResumeStore((state) => state.currentVersionId);
+  const createVersion = useResumeStore((state) => state.createVersion);
   const renameVersion = useResumeStore((state) => state.renameVersion);
   const deleteVersion = useResumeStore((state) => state.deleteVersion);
+
+  const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
+  const [createName, setCreateName] = React.useState("");
+  const [createDescription, setCreateDescription] = React.useState("");
 
   const [renamingVersionId, setRenamingVersionId] = React.useState<
     string | null
@@ -72,11 +89,27 @@ export function ResumeSidebarGroup() {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Resumes</SidebarGroupLabel>
+      <SidebarGroupAction
+        aria-label="Create new resume"
+        title="Create new resume"
+        onClick={() => setCreateDialogOpen(true)}
+      >
+        <Plus />
+      </SidebarGroupAction>
       <SidebarGroupContent>
         <SidebarMenu>
           {versions.length === 0 ? (
-            <div className="px-3 py-6 text-sm text-muted-foreground text-center">
-              No resumes yet. Create one to get started.
+            <div className="px-3 py-6 text-sm text-muted-foreground text-center space-y-3">
+              <div>No resumes yet. Create one to get started.</div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCreateDialogOpen(true)}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4" />
+                New resume
+              </Button>
             </div>
           ) : (
             versions.map((version) => {
@@ -152,7 +185,7 @@ export function ResumeSidebarGroup() {
                             }}
                           >
                             <DropdownMenuItem
-                              onSelect={(e) => {
+                              onSelect={() => {
                                 // Let the menu close first; also prevent its close
                                 // from re-focusing the trigger (which would dismiss
                                 // the popover).
@@ -237,6 +270,90 @@ export function ResumeSidebarGroup() {
           )}
         </SidebarMenu>
       </SidebarGroupContent>
+
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Resume</DialogTitle>
+            <DialogDescription>
+              Create a new resume version. You can then add items from your master data.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="create-resume-name">Name *</Label>
+              <Input
+                id="create-resume-name"
+                placeholder="e.g., Software Engineer"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const nextName = createName.trim();
+                    if (!nextName) {
+                      toast.error("Please enter a resume name");
+                      return;
+                    }
+                    const id = createVersion(
+                      nextName,
+                      createDescription.trim() || undefined
+                    );
+                    toast.success(`Created "${nextName}"`);
+                    setCreateName("");
+                    setCreateDescription("");
+                    setCreateDialogOpen(false);
+                    router.push(`/resumes/${id}`);
+                  }
+                }}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-resume-description">Description (optional)</Label>
+              <Textarea
+                id="create-resume-description"
+                placeholder="Brief description of this resume..."
+                value={createDescription}
+                onChange={(e) => setCreateDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCreateDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                const nextName = createName.trim();
+                if (!nextName) {
+                  toast.error("Please enter a resume name");
+                  return;
+                }
+                const id = createVersion(
+                  nextName,
+                  createDescription.trim() || undefined
+                );
+                toast.success(`Created "${nextName}"`);
+                setCreateName("");
+                setCreateDescription("");
+                setCreateDialogOpen(false);
+                router.push(`/resumes/${id}`);
+              }}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarGroup>
   );
 }
