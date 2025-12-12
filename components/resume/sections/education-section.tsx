@@ -9,6 +9,13 @@ import { SectionContainer } from "./section-container";
 import { EducationItemEditor } from "./education-item-editor";
 import { RichButton } from "@/components/ui/rich-button";
 import { ItemSelectorDialog } from "../item-selector-dialog";
+import { DropIndicator } from "./drop-indicator";
+import {
+  clearHighlights,
+  getIndicators,
+  highlightIndicator,
+  reorderItems,
+} from "@/lib/drag-drop-utils";
 
 export const EducationSection = memo(function EducationSection() {
   const resume = useCurrentResume();
@@ -17,6 +24,66 @@ export const EducationSection = memo(function EducationSection() {
     (state) => state.addMasterEducation
   );
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [active, setActive] = useState(false);
+
+  const SECTION_ID = "education";
+
+  const handleDragStart = useCallback((e: React.DragEvent, itemId: string) => {
+    e.dataTransfer.setData("itemId", itemId);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (e: React.DragEvent) => {
+      const itemId = e.dataTransfer.getData("itemId");
+
+      setActive(false);
+      clearHighlights(getIndicators(SECTION_ID));
+
+      const indicators = getIndicators(SECTION_ID);
+      const { element } = indicators.reduce(
+        (closest, child) => {
+          const box = child.getBoundingClientRect();
+          const offset = e.clientY - (box.top + 50);
+
+          if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+          } else {
+            return closest;
+          }
+        },
+        {
+          offset: Number.NEGATIVE_INFINITY,
+          element: indicators[indicators.length - 1],
+        }
+      );
+
+      const beforeId = element?.dataset.before || "-1";
+
+      if (beforeId !== itemId) {
+        const reordered = reorderItems(
+          resume?.education || [],
+          itemId,
+          beforeId === "-1" ? null : beforeId
+        );
+        updateEducation(reordered);
+      }
+    },
+    [resume?.education, updateEducation]
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      highlightIndicator(e, SECTION_ID);
+      setActive(true);
+    },
+    []
+  );
+
+  const handleDragLeave = useCallback(() => {
+    clearHighlights(getIndicators(SECTION_ID));
+    setActive(false);
+  }, []);
 
   const handleAdd = useCallback(() => {
     const masterId = crypto.randomUUID();
@@ -86,10 +153,26 @@ export const EducationSection = memo(function EducationSection() {
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div
+            className={`space-y-3 transition-colors ${
+              active ? "bg-accent/20" : ""
+            }`}
+            onDrop={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          >
             {resume.education.map((item, index) => (
-              <EducationItemEditor key={item.id} item={item} index={index} />
+              <div key={item.id}>
+                <DropIndicator beforeId={item.id} sectionId={SECTION_ID} />
+                <EducationItemEditor
+                  item={item}
+                  index={index}
+                  draggable={true}
+                  onDragStart={handleDragStart}
+                />
+              </div>
             ))}
+            <DropIndicator beforeId={null} sectionId={SECTION_ID} />
           </div>
         )}
       </SectionContainer>

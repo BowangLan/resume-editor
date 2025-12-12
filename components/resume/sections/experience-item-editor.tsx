@@ -12,9 +12,13 @@ import { ItemEditorActions } from "./item-editor-actions";
 export const ExperienceItemEditor = ({
   item,
   index,
+  draggable = false,
+  onDragStart,
 }: {
   item: ExperienceItem;
   index: number;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent, itemId: string) => void;
 }) => {
   const resume = useCurrentResume();
   const updateExperience = useResumeStore((state) => state.updateExperience);
@@ -137,6 +141,9 @@ export const ExperienceItemEditor = ({
           onPromoteToMaster={handlePromoteToMaster}
         />
       }
+      draggable={draggable}
+      onDragStart={onDragStart}
+      itemId={item.id}
     >
       <div className="space-y-4 px-3 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

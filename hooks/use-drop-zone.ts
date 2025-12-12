@@ -17,9 +17,15 @@ export function useDropZone({ onDrop, accept = '.pdf' }: UseDropZoneOptions) {
 
     setDragCounter(prev => prev + 1);
 
-    // Check if the dragged item contains files
+    // Check if the dragged item contains actual files (not just data)
     if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
-      setIsDragging(true);
+      // Only show drop zone for file drags, not internal item drags
+      const hasFiles = Array.from(e.dataTransfer.items).some(
+        item => item.kind === 'file'
+      );
+      if (hasFiles) {
+        setIsDragging(true);
+      }
     }
   }, []);
 

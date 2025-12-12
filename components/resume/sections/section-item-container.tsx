@@ -1,4 +1,6 @@
 import { AnimatePresence, cubicBezier, motion } from "motion/react";
+import { GripVertical } from "lucide-react";
+import { useState } from "react";
 
 export const SectionItemContainer = ({
   children,
@@ -7,6 +9,9 @@ export const SectionItemContainer = ({
   title,
   subtitle,
   right,
+  draggable = false,
+  onDragStart,
+  itemId,
 }: {
   children?: React.ReactNode;
   open: boolean;
@@ -14,9 +19,32 @@ export const SectionItemContainer = ({
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   right?: React.ReactNode;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent, itemId: string) => void;
+  itemId?: string;
 }) => {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragStart = (e: React.DragEvent) => {
+    if (onDragStart && itemId) {
+      setIsDragging(true);
+      onDragStart(e, itemId);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
-    <div className="flex flex-col group rounded-md border border-border shadow-xs">
+    <div
+      className={`flex flex-col group rounded-md border border-border shadow-xs transition-opacity ${
+        isDragging ? "opacity-50" : "opacity-100"
+      }`}
+      draggable={draggable}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       <motion.div
         className="flex flex-row py-3 px-3 cursor-pointer"
         onClick={(e) => {
@@ -24,6 +52,15 @@ export const SectionItemContainer = ({
           setOpen(!open);
         }}
       >
+        {draggable && (
+          <div
+            className="flex items-center pr-2 cursor-grab active:cursor-grabbing"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </div>
+        )}
         <div className="flex-1 group-hover:translate-x-1 trans">
           <motion.h4
             className="font-normal text-sm group-hover:font-medium trans"
